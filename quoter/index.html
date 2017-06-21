@@ -3,95 +3,103 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Random Quote Machine</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
-  <style type='text/css'>
-  .main-card.mdl-card {
-  width: 512px;
-  display: block;
-  height: auto;
-}
+
+
+<style type='text/css'>
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  
+text-align: center;
+background-color: #fff; 
+background-image: 
+linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+linear-gradient(#eee .1em, transparent .1em);
+background-size: 100% 1.2em;}
+
+.quotedisplay {
+  font-family: 'roman', serif;
+  font-size: 2.5em;
+  width: 600px;
+  height: auto;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(192,192,192,0.15);
+  border-radius: 15px;
+  box-shadow: -10px 10px 20px rgba(100,100,100,.8);
 }
-.main-card {
-  max-width: 800px;
+
+#author {
+  font-family: courier;
+  font-size: 0.5em;
+  font-style: italic;
 }
-.quote {
-  padding: 16px;
-}
-.author {
-  text-align: right;
-  padding-right: 24px;
-  margin-bottom: 28px;
-}
-.mdl-card__actions mdl-card--border {
-  display: flex;
-}
-.next {
-  position: absolute !important;
-  right: 0 !important;
-  margin: -36px 26px 0 0 !important;
-  background: slategray !important;
-}
-.cr {
-  padding: 8px;
-}
-.ht {
-  padding: 16px;
+
+a {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-family: sans-serif;
+  font-size: 8pt;
 }
   </style>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
 </head>
 
-<body style="background-color: #eee">
- <span class="ht mdl-typography--display-1-color-contrast">Random Quotes Machine</span>
-  <div class="main-card mdl-card mdl-shadow--2dp">
-    <div class=" quote mdl-typography--headline-color-contrast">
-      There are only two kinds of programming languages: those people always bitch about and those nobody uses.
-    </div>
-    <div class=" author mdl-typography--headline-color-contrast">
-      - Bjarne Stroustrup
-    </div>
-    <div class="mdl-card__actions mdl-card--border">     
-      <span class="mdl-layout-spacer"></span>
+<body>
+	<h1 class='text-primary'>Random Quote Machine</h1>
+	<br><br>
 
-      <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-js-ripple-effect next" id="tt3">
-  <i class="material-icons">refresh</i>
-</button>
+	<div class='quotedisplay'>
+	<div id='quote'></div>
+	<div id='author'></div>
+	</div>
+	<br>
+	<button class='btn1 btn-primary'>New Quote</button>
 
-    </div>
-  </div>
-  <span class='cr'> © Ramalingam</span>
-  <div class="mdl-tooltip mdl-tooltip--large" for="tt3">
-    New
-  </div>
-
-  <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
   <script type='text/javascript'>
-  $(document).ready(function(){
-  $('.next').on('click', function(e) {
-    myCallback = function(q) {
-      $('.quote , .author').animate({opacity: 0}, 10);
-      $('.quote').html(q.quote);
-      $('.author').html("  -  " + q.author);
-      $('.quote, .author').animate({opacity: 1}, 1000);
-      $('.link').attr("href", q.permalink);
-      $('.tweet').attr("href", "https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=" + encodeURIComponent('"' + q.quote + '" ' + q.author));
-      
-    };
-    $.ajax({
-    type: 'GET',
-    url: 'https://quotes.stormconsultancy.co.uk/random.json',
-    dataType: 'jsonp',
-    jsonpCallback: 'myCallback'
-    });    
+ $(document).ready(function() {
+  var theQuote = '';
+  var theAuthor = '';
+  createQuote();
+
+  $('.btn1').on("click", function() {
+    createQuote();
   });
+
+  function createQuote() {
+    // The following is the API call to the MashApe random quotes API server
+    var output = $.ajax({
+      url: 'https://andruxnet-random-famous-quotes.p.mashape.com/cat=famous',
+      type: 'GET', // The HTTP Method, can be GET POST PUT DELETE etc
+      data: {}, // Additional parameters here
+      dataType: 'json',
+      success: function(data) {
+        theQuote = data.quote;
+        theAuthor = data.author;
+        document.getElementById('quote').innerHTML = theQuote;
+        document.getElementById('author').innerHTML = theAuthor;
+      },
+      error: function(err) {
+        // If, for some reason, the API becomes unavailable, the Quote Machine will still work, though in a limited manner.
+        var quotes = {
+          1: ['If a man does his best, what else is there?', 'Gen. George S. Patton'],
+          2: ['Give me chastity and continence, but not yet.', 'Saint Augustine'],
+          3: ['You can avoid reality, but you cannot avoid the consequences of avoiding reality.', 'Ayn Rand'],
+          4: ['I have always depended on the kindness of strangers.', 'A Streetcar Named Desire']
+        };
+        var randomQuoteNumber = Math.ceil(Math.random() * Object.keys(quotes).length);
+
+        $('#quote').text(quotes[randomQuoteNumber][0]);
+        $('#author').text(quotes[randomQuoteNumber][1]);
+
+      },
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("X-Mashape-Authorization", "Sr4ugfUfUHmshOQ2IbeGXw8i1Gujp15JgPZjsnIcl0TaxHmdX3"); // Enter here your Mashape key
+      }
+    });
+  }
 });
 
   </script>
